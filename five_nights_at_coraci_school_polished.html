@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Five Nights at Coraci School — Polished Edition</title>
+  <style>
+    :root{
+      --bg:#04060b;
+      --panel:#0d121b;
+      --panel2:#121928;
+      --line:#243047;
+      --text:#ecf2ff;
+      --muted:#9ea9bf;
+      --danger:#ff6767;
+      --warn:#ffd166;
+      --good:#7ef0a5;
+      --accent:#7cc8ff;
+      --shadow:0 18px 50px rgba(0,0,0,.45);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;background:#02040a;color:var(--text)}
+    body{
+      background:
+        radial-gradient(circle at 20% 20%, rgba(30,45,72,.28), transparent 24%),
+        radial-gradient(circle at 80% 15%, rgba(60,30,70,.22), transparent 22%),
+        radial-gradient(circle at 50% 80%, rgba(25,60,70,.14), transparent 26%),
+        linear-gradient(180deg,#070b12,#03050a 60%,#020308);
+    }
+    .screen{display:none;height:100%}
+    .screen.active{display:block}
+    .titleScreen{
+      display:flex;align-items:center;justify-content:center;padding:20px;
+      position:relative;overflow:hidden
+    }
+    .titleScreen:before{
+      content:"";position:absolute;inset:0;pointer-events:none;
+      background:
+        repeating-linear-gradient(180deg, rgba(255,255,255,.02) 0 2px, transparent 2px 5px),
+        radial-gradient(circle at center, transparent 0 45%, rgba(0,0,0,.38) 76%);
+      mix-blend-mode:screen;opacity:.35
+    }
+    .hero{
+      position:relative;
+      width:min(900px,95vw);
+      padding:38px 34px;
+      border-radius:28px;
+      background:linear-gradient(180deg, rgba(18,25,38,.92), rgba(8,12,19,.94));
+      border:1px solid #28344d;
+      box-shadow:var(--shadow);
+      text-align:center
+    }
+    .eyebrow{
+      color:var(--accent);font-size:13px;letter-spacing:2px;font-weight:700;text-transform:uppercase
+    }
+    h1{
+      margin:10px 0 12px;
+      font-size:clamp(34px,5vw,70px);
+      line-height:1;
+      letter-spacing:1px;
+      text-shadow:0 0 18px rgba(124,200,255,.12)
+    }
+    .sub{font-size:18px;color:var(--muted);max-width:760px;margin:0 auto 22px;line-height:1.5}
+    .heroGrid{
+      display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0 10px;text-align:left
+    }
+    .mini{
+      background:rgba(16,23,35,.9);
+      border:1px solid #25324a;
+      border-radius:18px;padding:18px
+    }
+    .mini h3{margin:0 0 8px;font-size:16px}
+    .mini p,.mini li{color:var(--muted);line-height:1.45;font-size:14px}
+    .btn{
+      appearance:none;border:none;border-radius:14px;padding:14px 20px;
+      color:var(--text);font-weight:800;cursor:pointer;
+      background:#22314f;border:1px solid #3a5685;transition:.14s ease;
+      box-shadow:0 8px 20px rgba(0,0,0,.22)
+    }
+    .btn:hover{transform:translateY(-1px);filter:brightness(1.08)}
+    .btn:disabled{opacity:.5;cursor:not-allowed;transform:none;filter:none}
+    .btn.primary{background:linear-gradient(180deg,#2a5e8a,#22496d);border-color:#5fa7e3}
+    .btn.danger{background:linear-gradient(180deg,#6f2632,#4c1b23);border-color:#9d4454}
+    .topBar{
+      display:flex;gap:10px;padding:12px;border-bottom:1px solid var(--line);
+      background:rgba(10,14,21,.9);backdrop-filter:blur(4px)
+    }
+    .topBar .pill{
+      flex:1;min-width:0;background:linear-gradient(180deg,#121929,#0c111b);
+      border:1px solid var(--line);border-radius:14px;padding:10px 12px
+    }
+    .k{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px}
+    .v{font-weight:800;font-size:22px;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .wrap{height:calc(100% - 76px);padding:14px}
+    .layout{display:grid;grid-template-columns:1.35fr .95fr;gap:14px;height:100%}
+    .panel{
+      background:linear-gradient(180deg,rgba(13,18,27,.96),rgba(8,11,17,.98));
+      border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);overflow:hidden;min-height:0
+    }
+    .panelHeader{
+      display:flex;justify-content:space-between;gap:10px;align-items:center;
+      padding:13px 16px;border-bottom:1px solid var(--line);background:#0d1420;font-weight:800
+    }
+    .panelBody{padding:14px;height:calc(100% - 51px);min-height:0}
+    .office{
+      position:relative;height:62%;min-height:350px;border-radius:20px;overflow:hidden;
+      background:
+        linear-gradient(180deg,rgba(0,0,0,.06),rgba(0,0,0,.3)),
+        radial-gradient(circle at 50% 10%, rgba(255,255,255,.08), transparent 30%),
+        linear-gradient(90deg,#1a2231 0,#0f151f 18%,#111825 50%,#0f151f 82%,#1a2231 100%);
+      border:1px solid var(--line)
+    }
+    .office:before{
+      content:"";position:absolute;inset:0;pointer-events:none;
+      background:
+        repeating-linear-gradient(180deg, rgba(255,255,255,.025) 0 2px, transparent 2px 4px),
+        linear-gradient(180deg, transparent 0 78%, rgba(0,0,0,.35) 100%);
+      opacity:.35
+    }
+    .noise:after{
+      content:"";position:absolute;inset:0;pointer-events:none;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,.05) 0 1px, transparent 1px);
+      background-size:4px 4px;mix-blend-mode:screen;opacity:.14
+    }
+    .door{
+      position:absolute;top:0;bottom:0;width:17%;
+      display:flex;align-items:center;justify-content:center;text-align:center;
+      background:linear-gradient(180deg,#0b1018,#06090f);color:var(--muted);
+      border-left:1px solid #243146;border-right:1px solid #243146;
+      font-size:15px;font-weight:700;transition:.15s ease
+    }
+    .door.left{left:0}.door.right{right:0}
+    .door.closed{
+      background:linear-gradient(180deg,#49556d,#2a3345);color:#fff;
+      box-shadow:inset 0 0 0 2px rgba(124,200,255,.18), 0 0 18px rgba(124,200,255,.08)
+    }
+    .hallGlow{
+      position:absolute;left:50%;transform:translateX(-50%);
+      top:28px;width:64%;padding:12px 16px;text-align:center;
+      border-radius:14px;background:rgba(8,11,17,.6);backdrop-filter:blur(3px);
+      border:1px solid rgba(255,255,255,.07);box-shadow:0 10px 25px rgba(0,0,0,.25)
+    }
+    .enemyMarker{
+      position:absolute;width:76px;height:76px;border-radius:50%;
+      background:radial-gradient(circle at 35% 35%, rgba(255,110,110,.95), rgba(120,20,20,.55) 45%, transparent 65%);
+      filter:blur(10px);opacity:0;transition:.15s ease;pointer-events:none
+    }
+    .enemyMarker.show{opacity:.8}
+    .enemyMarker.left{left:8%;top:46%}
+    .enemyMarker.right{right:8%;top:46%}
+    .enemyMarker.center{left:50%;top:26%;transform:translateX(-50%)}
+    .desk{
+      position:absolute;left:17%;right:17%;bottom:0;height:31%;
+      background:linear-gradient(180deg,#28221c,#16120f);border-top:1px solid #45382c;padding:14px
+    }
+    .monitorRow{display:flex;gap:10px;height:100%}
+    .mon{
+      flex:1;background:#0b1017;border:1px solid #2d3b58;border-radius:14px;padding:10px;
+      font-size:13px;color:var(--muted)
+    }
+    .mon strong{display:block;color:var(--text);margin-bottom:8px}
+    .controls{
+      display:flex;flex-wrap:wrap;gap:10px;margin-top:12px
+    }
+    .camGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .cam{
+      min-height:105px;border-radius:14px;padding:10px;cursor:pointer;position:relative;
+      background:linear-gradient(180deg,#121929,#0e1420);border:1px solid var(--line);transition:.14s ease
+    }
+    .cam:hover{transform:translateY(-1px)}
+    .cam.active{outline:2px solid var(--accent);background:linear-gradient(180deg,#17314d,#102032)}
+    .cam.enemy{box-shadow:0 0 0 2px rgba(255,103,103,.48) inset}
+    .cam.player{box-shadow:0 0 0 2px rgba(126,240,165,.34) inset}
+    .camName{font-weight:800;margin-bottom:6px}
+    .camNote{font-size:12px;color:var(--muted);line-height:1.35}
+    .tinyDot{
+      position:absolute;right:10px;bottom:10px;width:9px;height:9px;border-radius:50%;background:#42516c
+    }
+    .tinyDot.enemy{background:var(--danger);box-shadow:0 0 10px rgba(255,103,103,.55)}
+    .tinyDot.player{background:var(--good);box-shadow:0 0 10px rgba(126,240,165,.45)}
+    .powerWrap{margin-top:14px}
+    .bar{
+      height:13px;border-radius:999px;overflow:hidden;background:#0a0f16;border:1px solid var(--line)
+    }
+    .fill{
+      height:100%;width:100%;
+      background:linear-gradient(90deg,#6df3a0 0%,#ffd166 55%,#ff6767 100%);
+      transition:width .15s ease
+    }
+    .log{
+      height:240px;overflow:auto;margin-top:14px;background:#0a0f16;border:1px solid var(--line);
+      border-radius:14px;padding:12px;font-size:14px;line-height:1.45
+    }
+    .entry{margin:0 0 10px}
+    .tag{
+      display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;margin-right:8px;border:1px solid transparent
+    }
+    .good{background:rgba(126,240,165,.12);color:var(--good);border-color:rgba(126,240,165,.28)}
+    .warn{background:rgba(255,209,102,.12);color:var(--warn);border-color:rgba(255,209,102,.28)}
+    .bad{background:rgba(255,103,103,.12);color:var(--danger);border-color:rgba(255,103,103,.28)}
+    .obj{margin:14px 0 0;padding-left:18px}
+    .obj li{margin-bottom:8px;color:var(--muted)}
+    .overlay{
+      position:fixed;inset:0;background:rgba(0,0,0,.76);display:none;align-items:center;justify-content:center;padding:20px;z-index:30
+    }
+    .overlay.show{display:flex}
+    .modal{
+      width:min(540px,94vw);padding:28px;background:linear-gradient(180deg,#111827,#0a0f17);
+      border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);text-align:center
+    }
+    .big{font-size:36px;font-weight:900;margin-bottom:8px}
+    .desc{color:var(--muted);line-height:1.5}
+    .jumpscare{
+      position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:40;
+      background:radial-gradient(circle at center, rgba(255,100,100,.22), rgba(0,0,0,.92) 60%)
+    }
+    .jumpscare.show{display:flex;animation:shake .25s linear 3}
+    .face{
+      width:min(520px,84vw);aspect-ratio:1/1;border-radius:50%;
+      background:
+        radial-gradient(circle at 35% 36%, #fff 0 8%, transparent 9%),
+        radial-gradient(circle at 65% 36%, #fff 0 8%, transparent 9%),
+        radial-gradient(circle at 35% 36%, #000 0 3%, transparent 4%),
+        radial-gradient(circle at 65% 36%, #000 0 3%, transparent 4%),
+        radial-gradient(circle at 50% 60%, rgba(0,0,0,.88) 0 17%, transparent 18%),
+        radial-gradient(circle at 50% 50%, #7f1717 0 58%, #360909 72%, #080202 100%);
+      box-shadow:0 0 40px rgba(255,80,80,.4)
+    }
+    .shakeText{position:absolute;bottom:10%;font-size:32px;font-weight:900;letter-spacing:2px;color:#fff}
+    @keyframes shake{
+      0%{transform:translate(0,0)}25%{transform:translate(-8px,4px)}
+      50%{transform:translate(10px,-4px)}75%{transform:translate(-5px,-3px)}100%{transform:translate(0,0)}
+    }
+    @media (max-width:960px){
+      .layout{grid-template-columns:1fr;height:auto}
+      .office{height:430px}
+      .heroGrid{grid-template-columns:1fr}
+      .wrap{height:auto;overflow:auto;padding-bottom:30px}
+      body{overflow:auto}
+    }
+  </style>
+</head>
+<body>
+  <div id="titleScreen" class="screen active titleScreen">
+    <div class="hero">
+      <div class="eyebrow">Playable Browser Horror Game</div>
+      <h1>FIVE NIGHTS AT<br>CORACI SCHOOL</h1>
+      <p class="sub">Eliza stayed late for her math project. The school locked up. Mr. Coraci is still inside, walking the halls and obsessing over perfect order.</p>
+      <div class="heroGrid">
+        <div class="mini">
+          <h3>How to win</h3>
+          <p>Collect 3 keys, restore the fuse box in Maintenance, survive until 5:00 AM, then reach the Main Exit.</p>
+        </div>
+        <div class="mini">
+          <h3>Use the tools</h3>
+          <p>Cameras track movement, doors block nearby entry, hide to survive, and the hallway flash can push him back.</p>
+        </div>
+      </div>
+      <button id="startBtn" class="btn primary">Start Game</button>
+    </div>
+  </div>
+
+  <div id="gameScreen" class="screen">
+    <div class="topBar">
+      <div class="pill"><div class="k">Time</div><div class="v" id="timeStat">12:00 AM</div></div>
+      <div class="pill"><div class="k">Power</div><div class="v" id="powerStat">100%</div></div>
+      <div class="pill"><div class="k">Keys</div><div class="v" id="keyStat">0 / 3</div></div>
+      <div class="pill"><div class="k">Location</div><div class="v" id="roomStat">Math Room</div></div>
+      <div class="pill"><div class="k">Threat</div><div class="v" id="threatStat">Low</div></div>
+    </div>
+
+    <div class="wrap">
+      <div class="layout">
+        <div class="panel">
+          <div class="panelHeader">
+            <span>Office / Hall View</span>
+            <span id="statusText" style="color:var(--muted)">Watching the hall</span>
+          </div>
+          <div class="panelBody">
+            <div id="office" class="office noise">
+              <div id="leftDoor" class="door left">Left Door</div>
+              <div id="rightDoor" class="door right">Right Door</div>
+              <div id="hallText" class="hallGlow">The school feels too quiet.</div>
+              <div id="enemyLeft" class="enemyMarker left"></div>
+              <div id="enemyRight" class="enemyMarker right"></div>
+              <div id="enemyCenter" class="enemyMarker center"></div>
+              <div class="desk">
+                <div class="monitorRow">
+                  <div class="mon">
+                    <strong>Selected Camera</strong>
+                    <div id="selectedCam">Math Room</div>
+                  </div>
+                  <div class="mon">
+                    <strong>Main Exit</strong>
+                    <div id="exitText">Locked</div>
+                  </div>
+                  <div class="mon">
+                    <strong>Objective</strong>
+                    <div>3 keys, power restored, survive until 5:00 AM.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="controls">
+              <button id="camsBtn" class="btn">Open Cameras</button>
+              <button id="moveBtn" class="btn primary">Move to Camera Room</button>
+              <button id="hideBtn" class="btn">Hide</button>
+              <button id="flashBtn" class="btn">Flash Hallway</button>
+              <button id="leftBtn" class="btn">Toggle Left Door</button>
+              <button id="rightBtn" class="btn">Toggle Right Door</button>
+              <button id="restartBtn" class="btn danger">Restart</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panelHeader">
+            <span>Security Cameras</span>
+            <span id="camsStatus" style="color:var(--muted)">Offline</span>
+          </div>
+          <div class="panelBody" style="overflow:auto">
+            <div id="camGrid" class="camGrid"></div>
+
+            <div class="powerWrap">
+              <strong>Power Reserve</strong>
+              <div class="bar"><div id="powerFill" class="fill"></div></div>
+            </div>
+
+            <div id="log" class="log"></div>
+
+            <ul class="obj">
+              <li>Only move to connected rooms.</li>
+              <li>Maintenance restores backup power once.</li>
+              <li>You can only escape through the front doors after 5:00 AM.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="overlay" class="overlay">
+    <div class="modal">
+      <div id="overlayTitle" class="big">Game Over</div>
+      <p id="overlayText" class="desc">Mr. Coraci found Eliza.</p>
+      <button id="againBtn" class="btn primary">Play Again</button>
+    </div>
+  </div>
+
+  <div id="jumpscare" class="jumpscare">
+    <div class="face"></div>
+    <div class="shakeText">MR. CORACI</div>
+  </div>
+
+  <script>
+    const ROOMS = [
+      {id:"library", name:"Library", side:"left", neighbors:["hall","science"], note:"Silent shelves and dark corners."},
+      {id:"hall", name:"Main Hall", side:"center", neighbors:["library","gym","math","science","office","cafeteria"], note:"Long corridor and flickering lights."},
+      {id:"gym", name:"Gym", side:"right", neighbors:["hall","office"], note:"Bleachers and echoes."},
+      {id:"science", name:"Science Lab", side:"left", neighbors:["library","hall","math","maintenance","cafeteria"], note:"Beakers, sinks, and counters."},
+      {id:"math", name:"Math Room", side:"center", neighbors:["hall","science","cafeteria"], note:"Eliza stayed here late."},
+      {id:"office", name:"Main Office", side:"right", neighbors:["hall","gym","cafeteria","exit"], note:"Security monitors and paperwork."},
+      {id:"maintenance", name:"Maintenance", side:"left", neighbors:["science","cafeteria"], note:"Fuse box and supplies."},
+      {id:"cafeteria", name:"Cafeteria", side:"center", neighbors:["maintenance","science","math","hall","office","exit"], note:"Tables and serving counters."},
+      {id:"exit", name:"Main Exit", side:"right", neighbors:["cafeteria","office"], note:"The school front doors."}
+    ];
+
+    const timeNames = ["12:00 AM","1:00 AM","2:00 AM","3:00 AM","4:00 AM","5:00 AM","6:00 AM"];
+    let state = {};
+
+    const byId = id => ROOMS.find(r => r.id === id);
+    const rand = arr => arr[Math.floor(Math.random()*arr.length)];
+
+    function pickKeys(){
+      const arr = ["library","science","gym","office","cafeteria","maintenance"];
+      for(let i=arr.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [arr[i],arr[j]] = [arr[j],arr[i]];
+      }
+      return arr.slice(0,3);
+    }
+
+    function resetGame(){
+      state = {
+        time: 0,
+        power: 100,
+        keys: 0,
+        keyRooms: pickKeys(),
+        found: [],
+        player: "math",
+        enemy: rand(["library","hall","gym","science","office","maintenance","cafeteria"]),
+        selected: "math",
+        camsOpen: false,
+        hiding: false,
+        leftClosed: false,
+        rightClosed: false,
+        powerRestored: false,
+        ended: false
+      };
+      document.getElementById("log").innerHTML = "";
+      buildCams();
+      updateUI();
+      log("good","START","Eliza stayed late for her math project and the school locked up.");
+      log("warn","GOAL","Find 3 keys, restore power in Maintenance, survive until 5:00 AM, then reach the Main Exit.");
+      scene();
+    }
+
+    function buildCams(){
+      const grid = document.getElementById("camGrid");
+      grid.innerHTML = "";
+      ROOMS.forEach(room => {
+        const div = document.createElement("div");
+        div.className = "cam";
+        div.dataset.room = room.id;
+        div.innerHTML = `<div class="camName">${room.name}</div><div class="camNote">${room.note}</div><div class="tinyDot"></div>`;
+        div.onclick = () => {
+          if (state.ended) return;
+          state.selected = room.id;
+          updateUI();
+        };
+        grid.appendChild(div);
+      });
+    }
+
+    function log(type,label,text){
+      const row = document.createElement("div");
+      row.className = "entry";
+      row.innerHTML = `<span class="tag ${type}">${label}</span>${text}`;
+      document.getElementById("log").prepend(row);
+    }
+
+    function spendPower(n){
+      state.power = Math.max(0, state.power - n);
+      if (state.power <= 0){
+        state.leftClosed = false;
+        state.rightClosed = false;
+        state.camsOpen = false;
+      }
+    }
+
+    function threat(){
+      if (state.enemy === state.player) return "Extreme";
+      if (byId(state.player).neighbors.includes(state.enemy)) return "High";
+      if (byId(state.enemy).neighbors.some(n => byId(state.player).neighbors.includes(n))) return "Medium";
+      return "Low";
+    }
+
+    function updateMarkers(){
+      document.getElementById("enemyLeft").classList.remove("show");
+      document.getElementById("enemyRight").classList.remove("show");
+      document.getElementById("enemyCenter").classList.remove("show");
+      if (threat() === "Extreme" || threat() === "High"){
+        const side = byId(state.enemy).side || "center";
+        const id = side === "left" ? "enemyLeft" : side === "right" ? "enemyRight" : "enemyCenter";
+        document.getElementById(id).classList.add("show");
+      }
+    }
+
+    function updateUI(){
+      document.getElementById("timeStat").textContent = timeNames[state.time];
+      document.getElementById("powerStat").textContent = `${Math.round(state.power)}%`;
+      document.getElementById("keyStat").textContent = `${state.keys} / 3`;
+      document.getElementById("roomStat").textContent = byId(state.player).name;
+      document.getElementById("threatStat").textContent = threat();
+      document.getElementById("selectedCam").textContent = byId(state.selected).name;
+      document.getElementById("exitText").textContent = state.keys >= 3 && state.powerRestored ? (state.time >= 5 ? "Unlocked if reached" : "Ready at 5:00 AM") : "Locked";
+      document.getElementById("camsStatus").textContent = state.camsOpen ? "Online" : "Offline";
+      document.getElementById("statusText").textContent = state.hiding ? "Eliza is hidden" : "Watching the hall";
+      document.getElementById("powerFill").style.width = `${state.power}%`;
+
+      document.getElementById("leftDoor").className = "door left" + (state.leftClosed ? " closed" : "");
+      document.getElementById("rightDoor").className = "door right" + (state.rightClosed ? " closed" : "");
+
+      [...document.querySelectorAll(".cam")].forEach(cam => {
+        cam.className = "cam";
+        if (cam.dataset.room === state.selected) cam.classList.add("active");
+        if (cam.dataset.room === state.enemy) cam.classList.add("enemy");
+        if (cam.dataset.room === state.player) cam.classList.add("player");
+        const dot = cam.querySelector(".tinyDot");
+        dot.className = "tinyDot";
+        if (cam.dataset.room === state.enemy) dot.classList.add("enemy");
+        else if (cam.dataset.room === state.player) dot.classList.add("player");
+      });
+
+      document.getElementById("moveBtn").disabled = !state.camsOpen || state.ended;
+      ["camsBtn","hideBtn","flashBtn","leftBtn","rightBtn","restartBtn"].forEach(id => {
+        document.getElementById(id).disabled = state.ended && id !== "restartBtn";
+      });
+      updateMarkers();
+    }
+
+    function scene(){
+      let text = "";
+      if (state.player === "maintenance" && !state.powerRestored){
+        text = "The fuse box hums nearby. Eliza could restore the building's backup power here.";
+      } else if (state.player === "exit" && state.keys >= 3 && state.powerRestored && state.time >= 5){
+        text = "The front doors are right there. One move and she can escape.";
+      } else if (threat() === "Extreme"){
+        text = "Heavy footsteps. Mr. Coraci is in the room.";
+      } else if (threat() === "High"){
+        text = "Someone is very close. The hallway lights tremble.";
+      } else if (threat() === "Medium"){
+        text = "The school creaks in the distance. He is somewhere nearby.";
+      } else {
+        text = "The school is quiet, but it never feels empty.";
+      }
+      document.getElementById("hallText").textContent = text;
+    }
+
+    function patrol(){
+      const current = byId(state.enemy);
+      const options = [...current.neighbors];
+      const toward = options.filter(id => id === state.player || byId(id).neighbors.includes(state.player));
+      const aggression = .56 + (state.time * .06);
+      let next = Math.random() < aggression && toward.length ? rand(toward) : rand(options);
+
+      if (next === state.player){
+        const side = byId(state.player).side;
+        if (side === "left" && state.leftClosed && state.power > 0){
+          log("good","BLOCK","The left door held shut.");
+          next = state.enemy;
+        } else if (side === "right" && state.rightClosed && state.power > 0){
+          log("good","BLOCK","The right door held shut.");
+          next = state.enemy;
+        }
+      }
+      state.enemy = next;
+      log("bad","PATROL",`Mr. Coraci moved to ${byId(state.enemy).name}.`);
+    }
+
+    function encounter(){
+      if (state.enemy !== state.player || state.ended) return;
+      if (state.hiding){
+        log("good","HIDE","Mr. Coraci entered, looked around, and left.");
+        state.enemy = rand(byId(state.enemy).neighbors);
+        state.hiding = false;
+      } else {
+        jumpscare(() => lose(`Mr. Coraci found Eliza in ${byId(state.player).name}.`));
+      }
+    }
+
+    function tick(advanceTime=true){
+      if (state.ended) return;
+      let drain = 1.4;
+      if (state.camsOpen && state.power > 0) drain += 2.0;
+      if (state.leftClosed && state.power > 0) drain += 1.7;
+      if (state.rightClosed && state.power > 0) drain += 1.7;
+      if (state.hiding) drain += .4;
+      spendPower(drain);
+      if (advanceTime) state.time = Math.min(6, state.time + 1);
+      patrol();
+      encounter();
+      if (!state.ended && state.time >= 6){
+        if (state.player === "exit" && state.keys >= 3 && state.powerRestored){
+          win("Eliza reached the front doors and escaped as daylight arrived.");
+        } else {
+          lose("Morning came, but Eliza never made it out.");
+        }
+      }
+      scene();
+      updateUI();
+    }
+
+    function movePlayer(){
+      if (state.ended) return;
+      if (!state.camsOpen){
+        log("warn","CAMERAS","Open the cameras first.");
+        return;
+      }
+      const target = state.selected;
+      if (target === state.player){
+        log("warn","WAIT","Eliza is already there.");
+        return;
+      }
+      if (!byId(state.player).neighbors.includes(target)){
+        log("warn","BLOCKED","That room is not directly connected.");
+        return;
+      }
+      if (target === "exit"){
+        if (state.keys < 3 || !state.powerRestored){
+          log("warn","EXIT","The front doors will not open yet.");
+          return;
+        }
+        if (state.time < 5){
+          log("warn","EXIT","She has to wait until 5:00 AM.");
+          return;
+        }
+      }
+      state.player = target;
+      state.hiding = false;
+      log("good","MOVE",`Eliza moved to ${byId(target).name}.`);
+
+      if (state.keyRooms.includes(target) && !state.found.includes(target)){
+        state.found.push(target);
+        state.keys += 1;
+        log("good","KEY",`Eliza found a key in ${byId(target).name}.`);
+      }
+      if (target === "maintenance" && !state.powerRestored){
+        state.powerRestored = true;
+        state.power = Math.min(100, state.power + 22);
+        log("good","POWER","Eliza reset the fuse box and restored backup power.");
+      }
+      if (target === "exit" && state.keys >= 3 && state.powerRestored && state.time >= 5){
+        win("Eliza unlocked the front doors and escaped.");
+        return;
+      }
+      tick(true);
+    }
+
+    function toggleCams(){
+      if (state.ended) return;
+      if (state.power <= 0){
+        log("bad","POWER","The cameras are dead.");
+        return;
+      }
+      state.camsOpen = !state.camsOpen;
+      spendPower(3.2);
+      log("warn","CAMERAS", state.camsOpen ? "Camera system online." : "Camera system closed.");
+      scene();
+      updateUI();
+    }
+
+    function hide(){
+      if (state.ended) return;
+      state.hiding = true;
+      log("warn","HIDE","Eliza hid and stayed still.");
+      tick(true);
+    }
+
+    function flash(){
+      if (state.ended) return;
+      if (state.power <= 0){
+        log("bad","POWER","The hallway lights do not respond.");
+        return;
+      }
+      document.getElementById("office").style.boxShadow = "0 0 0 9999px rgba(255,245,190,.05) inset";
+      setTimeout(() => document.getElementById("office").style.boxShadow = "", 160);
+      spendPower(5.8);
+      log("warn","FLASH","Eliza flashed the hallway.");
+      const near = state.enemy === state.player || byId(state.enemy).neighbors.includes(state.player);
+      if (near && Math.random() < .72){
+        const options = byId(state.enemy).neighbors.filter(id => id !== state.player);
+        if (options.length){
+          state.enemy = rand(options);
+          log("good","REPEL","Mr. Coraci backed away from the sudden light.");
+        }
+      }
+      tick(false);
+    }
+
+    function toggleDoor(side){
+      if (state.ended) return;
+      if (state.power <= 0){
+        log("bad","POWER","The door controls are dead.");
+        return;
+      }
+      if (side === "left"){
+        state.leftClosed = !state.leftClosed;
+        log("warn","DOOR",`Left door ${state.leftClosed ? "closed" : "opened"}.`);
+      } else {
+        state.rightClosed = !state.rightClosed;
+        log("warn","DOOR",`Right door ${state.rightClosed ? "closed" : "opened"}.`);
+      }
+      tick(false);
+    }
+
+    function jumpscare(done){
+      const j = document.getElementById("jumpscare");
+      j.classList.add("show");
+      setTimeout(() => {
+        j.classList.remove("show");
+        done();
+      }, 850);
+    }
+
+    function win(text){
+      state.ended = true;
+      document.getElementById("overlayTitle").textContent = "You Escaped";
+      document.getElementById("overlayText").textContent = text;
+      document.getElementById("overlay").classList.add("show");
+      updateUI();
+    }
+
+    function lose(text){
+      state.ended = true;
+      document.getElementById("overlayTitle").textContent = "Game Over";
+      document.getElementById("overlayText").textContent = text;
+      document.getElementById("overlay").classList.add("show");
+      updateUI();
+    }
+
+    document.getElementById("startBtn").onclick = () => {
+      document.getElementById("titleScreen").classList.remove("active");
+      document.getElementById("gameScreen").classList.add("active");
+      resetGame();
+    };
+    document.getElementById("camsBtn").onclick = toggleCams;
+    document.getElementById("moveBtn").onclick = movePlayer;
+    document.getElementById("hideBtn").onclick = hide;
+    document.getElementById("flashBtn").onclick = flash;
+    document.getElementById("leftBtn").onclick = () => toggleDoor("left");
+    document.getElementById("rightBtn").onclick = () => toggleDoor("right");
+    document.getElementById("restartBtn").onclick = resetGame;
+    document.getElementById("againBtn").onclick = () => {
+      document.getElementById("overlay").classList.remove("show");
+      resetGame();
+    };
+  </script>
+</body>
+</html>
